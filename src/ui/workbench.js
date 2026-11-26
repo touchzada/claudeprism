@@ -266,36 +266,80 @@
       });
     }
 
+    let foldBtnEl = null;
+    let hoveredPre = null;
+
+    function hideFoldBtn() {
+      if (foldBtnEl) foldBtnEl.style.display = 'none';
+      hoveredPre = null;
+    }
+
+    function ensureFoldBtn() {
+      if (foldBtnEl && foldBtnEl.isConnected) return foldBtnEl;
+      foldBtnEl = document.createElement('button');
+      foldBtnEl.type = 'button';
+      foldBtnEl.className = 'cp-code-fold-btn';
+      foldBtnEl.style.display = 'none';
+      foldBtnEl.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (!hoveredPre || !hoveredPre.isConnected) return;
+        const nextFold = hoveredPre.getAttribute('data-cp-folded') !== '1';
+        if (nextFold) hoveredPre.setAttribute('data-cp-folded', '1');
+        else hoveredPre.removeAttribute('data-cp-folded');
+        positionFoldBtn(hoveredPre);
+      });
+      document.body.appendChild(foldBtnEl);
+      return foldBtnEl;
+    }
+
+    function positionFoldBtn(pre) {
+      const cfg = getConfig();
+      if (!cfg.enabled || !cfg.codeFold || !pre || !pre.isConnected) {
+        hideFoldBtn();
+        return;
+      }
+      const lines = (pre.innerText || '').split('\n').length;
+      if (lines < 38) {
+        hideFoldBtn();
+        return;
+      }
+      const r = pre.getBoundingClientRect();
+      if (r.width < 120 || r.height < 60 || r.bottom < 40 || r.top > (root.innerHeight || 900) - 40) {
+        hideFoldBtn();
+        return;
+      }
+      const btn = ensureFoldBtn();
+      hoveredPre = pre;
+      const folded = pre.getAttribute('data-cp-folded') === '1';
+      btn.textContent = folded ? `Expandir (${lines} linhas)` : 'Recolher código';
+      btn.style.display = 'inline-flex';
+      btn.style.top = `${Math.round(Math.min((root.innerHeight || 900) - 44, r.bottom - 36))}px`;
+      btn.style.left = `${Math.round(Math.max(12, r.right - (folded ? 148 : 118)))}px`;
+    }
+
+    function onHoverCode(ev) {
+      const cfg = getConfig();
+      if (!cfg.enabled || !cfg.codeFold) { hideFoldBtn(); return; }
+      const target = ev.target;
+      if (foldBtnEl && (target === foldBtnEl || foldBtnEl.contains(target))) return;
+      const pre = target?.closest?.('main pre') || null;
+      if (pre) {
+        positionFoldBtn(pre);
+      } else if (hoveredPre) {
+        hideFoldBtn();
+      }
+    }
+
     function enhanceCodeBlocks() {
       const cfg = getConfig();
       if (!cfg.enabled || !cfg.codeFold) {
+        hideFoldBtn();
         document.querySelectorAll('pre[data-cp-folded]').forEach((p) => p.removeAttribute('data-cp-folded'));
-        document.querySelectorAll('.cp-code-fold-btn').forEach((b) => b.remove());
-        return;
+      } else if (hoveredPre && hoveredPre.isConnected) {
+        positionFoldBtn(hoveredPre);
+      } else {
+        hideFoldBtn();
       }
-      document.querySelectorAll('main pre').forEach((pre) => {
-        if (pre.dataset.cpFoldReady === '1') return;
-        const lines = (pre.innerText || '').split('\n').length;
-        if (lines < 38) return;
-        pre.dataset.cpFoldReady = '1';
-        pre.style.position = 'relative';
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'cp-code-fold-btn';
-        const setLabel = (folded) => {
-          btn.textContent = folded ? `Expandir (${lines} linhas)` : 'Recolher código';
-        };
-        setLabel(false);
-        btn.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          const nextFold = pre.getAttribute('data-cp-folded') !== '1';
-          if (nextFold) pre.setAttribute('data-cp-folded', '1');
-          else pre.removeAttribute('data-cp-folded');
-          setLabel(nextFold);
-        });
-        pre.appendChild(btn);
-      });
     }
 
     function syncSemanticEdge() {
@@ -386,8 +430,9 @@
     function start() {
       document.addEventListener('keydown', onKeyDown, true);
       document.addEventListener('click', onDocClick, true);
+      document.addEventListener('pointerover', onHoverCode, { passive: true });
       scan();
-      scanTimer = setInterval(scan, 1000);
+      scanTimer = setInterval(scan, 800);
     }
 
     function sync() {
@@ -400,12 +445,13 @@
       clearTimeout(edgeDoneTimer);
       document.removeEventListener('keydown', onKeyDown, true);
       document.removeEventListener('click', onDocClick, true);
+      document.removeEventListener('pointerover', onHoverCode);
       removeDock();
+      if (foldBtnEl) { foldBtnEl.remove(); foldBtnEl = null; }
       if (outlineRail) { outlineRail.remove(); outlineRail = null; }
       if (outlineTooltip) { outlineTooltip.remove(); outlineTooltip = null; }
       if (edgeEl) { edgeEl.remove(); edgeEl = null; }
       document.querySelectorAll('[data-cp-composer-card]').forEach((el) => el.removeAttribute('data-cp-composer-card'));
-      document.querySelectorAll('.cp-code-fold-btn').forEach((b) => b.remove());
       document.querySelectorAll('pre[data-cp-folded]').forEach((p) => p.removeAttribute('data-cp-folded'));
     }
 

@@ -104,14 +104,20 @@
       syncAll();
     });
 
-    // React to SPA navigation on claude.ai
+    // React to SPA navigation on claude.ai (Home '/' -> '/chat/<id>')
     let lastHref = root.location.href;
+    const onRouteChange = () => {
+      syncAll();
+      setTimeout(syncAll, 200);
+      setTimeout(syncAll, 750);
+    };
+    root.addEventListener('popstate', onRouteChange);
     setInterval(() => {
       if (root.location.href !== lastHref) {
         lastHref = root.location.href;
-        setTimeout(syncAll, 180);
+        onRouteChange();
       }
-    }, 600);
+    }, 300);
 
     // Handle commands from extension toolbar popup
     if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {

@@ -1,4 +1,5 @@
-// Claude Prism — Zero-StyleRecalc GPU Canvas Cursor-Reactive Prism Rim
+// Claude Prism — React-Safe Fixed Overlay GPU Canvas Cursor-Reactive Prism Rim
+// Mounts a single viewport-aligned canvas on document.body (ZERO DOM mutations inside claude.ai's React tree!)
 (function (root) {
   'use strict';
   const CP = (root.ClaudePrism = root.ClaudePrism || {});
@@ -31,13 +32,13 @@
   };
 
   function createPrismRimController({ isEnabled, getConfig, getTargets }) {
+    let canvas = null;
+    let ctx = null;
     let rafId = 0;
     let idleTimer = 0;
     let pointerX = -9999;
     let pointerY = -9999;
     let destroyed = false;
-    const canvasMap = new WeakMap();
-    const trackedCanvases = new Set();
 
     function resolveToneKey(cfg) {
       const accent = cfg.accentTone || 'follow';
@@ -47,127 +48,129 @@
       return pal === 'warm' || pal === 'alabaster' ? 'warm' : 'default';
     }
 
-    function ensureCanvas(host) {
-      let rec = canvasMap.get(host);
-      if (rec && rec.cv.isConnected && rec.cv.parentElement === host) return rec;
-      const existing = host.querySelector(':scope > .cp-prism-rim-cv');
-      const cv = existing || document.createElement('canvas');
-      if (!existing) {
-        cv.className = 'cp-prism-rim-cv';
-        cv.setAttribute('aria-hidden', 'true');
-        cv.width = 0;
-        cv.height = 0;
-        host.appendChild(cv);
-      }
-      const ctx = cv.getContext('2d');
-      if (!ctx) { cv.remove(); return null; }
-      rec = { cv, ctx, cleared: true };
-      canvasMap.set(host, rec);
-      trackedCanvases.add(cv);
-      return rec;
+    function ensureCanvas() {
+      if (canvas && canvas.isConnected && ctx) return canvas;
+      canvas = document.createElement('canvas');
+      canvas.className = 'cp-prism-rim-overlay';
+      canvas.setAttribute('aria-hidden', 'true');
+      canvas.width = 0;
+      canvas.height = 0;
+      document.body.appendChild(canvas);
+      ctx = canvas.getContext('2d');
+      return canvas;
     }
 
-    function shrinkAll() {
+    function shrink() {
       clearTimeout(idleTimer);
       idleTimer = 0;
-      for (const cv of Array.from(trackedCanvases)) {
-        if (!cv.isConnected) { trackedCanvases.delete(cv); continue; }
-        if (cv.width || cv.height) { cv.width = 0; cv.height = 0; }
+      if (canvas && (canvas.width || canvas.height)) {
+        canvas.width = 0;
+        canvas.height = 0;
       }
     }
 
     function armIdleShrink() {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(shrinkAll, 1800);
+      idleTimer = setTimeout(shrink, 1800);
     }
 
     function draw() {
       rafId = 0;
       if (destroyed || !isEnabled() || document.hidden) {
-        shrinkAll();
+        shrink();
         return;
       }
       const cfg = getConfig();
       const ambient = Math.max(0, Math.min(1, Number(cfg.ambientIntensity ?? 100) / 100));
-      if (ambient <= 0.01) { shrinkAll(); return; }
+      if (ambient <= 0.01) { shrink(); return; }
+
+      const targets = getTargets().filter((el) => el && el.isConnected);
+      if (targets.length === 0) { shrink(); return; }
 
       const isDark = document.documentElement.getAttribute('data-cp-mode') !== 'light';
       const toneKey = resolveToneKey(cfg);
       const stops = (RIM_PALETTES[toneKey] || RIM_PALETTES.warm)[isDark ? 'dark' : 'light'];
       const dpr = Math.min(root.devicePixelRatio || 1, 1.5);
-      const targets = getTargets();
-      let anyLit = false;
+      const vw = root.innerWidth || 1280;
+      const vh = root.innerHeight || 720;
 
+      // Check if pointer is near any target before allocating canvas VRAM
+      const litList = [];
       for (const host of targets) {
-        if (!host || !host.isConnected) continue;
         const rect = host.getBoundingClientRect();
         if (rect.width < 24 || rect.height < 24) continue;
+        if (rect.bottom < 0 || rect.top > vh || rect.right < 0 || rect.left > vw) continue;
         const localX = pointerX - rect.left;
         const localY = pointerY - rect.top;
         const dx = localX < 0 ? -localX : localX > rect.width ? localX - rect.width : 0;
         const dy = localY < 0 ? -localY : localY > rect.height ? localY - rect.height : 0;
         const dist = Math.hypot(dx, dy);
-
-        const rec = ensureCanvas(host);
-        if (!rec) continue;
-
-        if (dist > 150) {
-          if (!rec.cleared && rec.cv.width > 0) {
-            rec.ctx.clearRect(0, 0, rec.cv.width, rec.cv.height);
-            rec.cleared = true;
-          }
-          continue;
+        if (dist <= 165) {
+          litList.push({ host, rect, dist });
         }
+      }
 
-        anyLit = true;
-        const w = Math.max(4, Math.round((rect.width + 2) * dpr));
-        const h = Math.max(4, Math.round((rect.height + 2) * dpr));
-        if (rec.cv.width !== w || rec.cv.height !== h) {
-          rec.cv.width = w;
-          rec.cv.height = h;
+      if (litList.length === 0) {
+        if (ctx && canvas && canvas.width > 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        const ctx = rec.ctx;
-        ctx.clearRect(0, 0, w, h);
+        armIdleShrink();
+        return;
+      }
 
+      clearTimeout(idleTimer);
+      idleTimer = 0;
+
+      const cv = ensureCanvas();
+      if (!ctx) return;
+      const tw = Math.max(4, Math.round(vw * dpr));
+      const th = Math.max(4, Math.round(vh * dpr));
+      if (cv.width !== tw || cv.height !== th) {
+        cv.width = tw;
+        cv.height = th;
+      }
+      ctx.clearRect(0, 0, tw, th);
+
+      const gx = pointerX * dpr;
+      const gy = pointerY * dpr;
+
+      for (const item of litList) {
+        const { host, rect, dist } = item;
         const cs = getComputedStyle(host);
         const radius = parseFloat(cs.borderTopLeftRadius) || 20;
         const strength = ambient * Math.max(0, 1 - dist / 165) * (toneKey === 'mono' ? 0.58 : 1);
-        const gx = (localX + 1) * dpr;
-        const gy = (localY + 1) * dpr;
         const gr = Math.max(125, Math.min(235, rect.width * 0.30)) * dpr;
 
         const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
         for (const [offset, color] of stops) grad.addColorStop(offset, color);
 
-        // Dual-pass Obsidian Prism specular rim: subtle outer border bloom + crisp 1.4px optical hairline
-        const inset = 0.85 * dpr;
-        const rr = Math.min((w - inset * 2) * 0.5, (h - inset * 2) * 0.5, radius * dpr);
+        const x = rect.left * dpr;
+        const y = rect.top * dpr;
+        const w = rect.width * dpr;
+        const h = rect.height * dpr;
+        const rr = Math.min(w * 0.5, h * 0.5, radius * dpr);
 
         ctx.save();
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, rr);
+          ctx.roundRect(x, y, w, h, rr);
         } else {
-          ctx.rect(inset, inset, w - inset * 2, h - inset * 2);
+          ctx.rect(x, y, w, h);
         }
 
-        // Pass 1: soft 3.5px chromatic border halo (stroke ONLY — never fills interior!)
-        ctx.globalAlpha = Math.min(0.32, strength * (isDark ? 0.32 : 0.18));
-        ctx.lineWidth = 3.6 * dpr;
+        // Pass 1: subtle chromatic border halo
+        ctx.globalAlpha = Math.min(0.30, strength * (isDark ? 0.30 : 0.16));
+        ctx.lineWidth = 3.4 * dpr;
         ctx.strokeStyle = grad;
         ctx.stroke();
 
-        // Pass 2: razor-sharp 1.45px specular refraction hairline
+        // Pass 2: razor-sharp specular hairline
         ctx.globalAlpha = Math.min(0.95, strength * (isDark ? 0.92 : 0.74));
         ctx.lineWidth = 1.45 * dpr;
         ctx.strokeStyle = grad;
         ctx.stroke();
         ctx.restore();
-        rec.cleared = false;
       }
-
-      if (!anyLit) armIdleShrink();
-      else { clearTimeout(idleTimer); idleTimer = 0; }
     }
 
     function schedule() {
@@ -187,14 +190,18 @@
       schedule();
     }
 
+    function onScrollOrResize() { schedule(); }
+
     function start() {
       document.addEventListener('pointermove', onPointerMove, { passive: true });
       document.addEventListener('pointerleave', onPointerLeave, { passive: true });
+      document.addEventListener('scroll', onScrollOrResize, { passive: true, capture: true });
+      root.addEventListener('resize', onScrollOrResize, { passive: true });
       root.addEventListener('blur', onPointerLeave, { passive: true });
     }
 
     function sync() {
-      if (!isEnabled()) shrinkAll();
+      if (!isEnabled()) shrink();
       else schedule();
     }
 
@@ -202,11 +209,12 @@
       destroyed = true;
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerleave', onPointerLeave);
+      document.removeEventListener('scroll', onScrollOrResize, true);
+      root.removeEventListener('resize', onScrollOrResize);
       root.removeEventListener('blur', onPointerLeave);
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-      shrinkAll();
-      for (const cv of Array.from(trackedCanvases)) cv.remove();
-      trackedCanvases.clear();
+      shrink();
+      if (canvas) { canvas.remove(); canvas = null; ctx = null; }
     }
 
     return { start, sync, destroy };

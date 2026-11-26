@@ -78,11 +78,8 @@ html[data-cp-enabled="1"] ::-webkit-scrollbar-thumb:hover {
   background: var(--cp-border-3);
 }
 
-/* Faceted Smoked Obsidian Outer Composer Card (preserves native inner padding/spacing!) */
+/* Faceted Smoked Obsidian Outer Composer Card (NEVER overrides position or overflow so React sticky/fixed layout stays 100% intact!) */
 html[data-cp-enabled="1"] [data-cp-composer-card="1"] {
-  position: relative !important;
-  overflow: visible !important;
-  z-index: 4 !important;
   background-color: var(--cp-bg-2) !important;
   background-image: var(--cp-sheen) !important;
   border-color: var(--cp-border-2) !important;
@@ -117,13 +114,7 @@ html[data-cp-enabled="1"] :not(pre) > code {
   box-shadow: inset 0 1px 0 var(--cp-specular);
 }
 
-/* Sidebar sits cleanly above ripple backdrop with subtle optical edge */
-html[data-cp-enabled="1"] nav,
-html[data-cp-enabled="1"] aside {
-  position: relative;
-  z-index: 3;
-}
-
+/* Sidebar hover motion (never override host position!) */
 html[data-cp-enabled="1"] nav a,
 html[data-cp-enabled="1"] aside a {
   transition: background-color 140ms ease, color 140ms ease, transform 160ms var(--cp-ease-spring);
@@ -160,12 +151,11 @@ html[data-cp-enabled="1"] pre[data-cp-folded="1"]::after {
 }
 
 .cp-code-fold-btn {
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  z-index: 6;
+  position: fixed;
+  z-index: 9988;
   height: 26px;
   padding: 0 11px;
+  align-items: center;
   border-radius: var(--cp-r-pill);
   border: 1px solid var(--cp-border-2);
   background: var(--cp-bg-3);
@@ -257,16 +247,15 @@ html[data-cp-enabled="1"] [data-cp-smooth-caret="1"] {
 ::highlight(cp-ink-4) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 95%, transparent); }
 
 /* ==========================================================================
-   Cursor-Reactive GPU Prism Rim Canvas (Crisp Hairline Specular ONLY)
+   Cursor-Reactive GPU Prism Rim Fixed Overlay (Zero React DOM Mutations!)
    ========================================================================== */
-.cp-prism-rim-cv {
-  position: absolute !important;
-  inset: -1px !important;
-  width: calc(100% + 2px) !important;
-  height: calc(100% + 2px) !important;
+.cp-prism-rim-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   pointer-events: none !important;
-  z-index: 20 !important;
-  border-radius: inherit !important;
+  z-index: 9989 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -317,16 +306,13 @@ html[data-cp-enabled="1"][data-cp-mode="light"] .cp-ripple-backdrop {
 }
 
 /* ==========================================================================
-   Interactive Pixel Mascot Stage (Mounted flush on OUTER composer top edge!)
+   Interactive Pixel Mascot Stage (React-safe fixed overlay tracking composer)
    ========================================================================== */
 .cp-mascot-stage {
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 100%;
+  position: fixed;
   height: 84px;
   pointer-events: none;
-  z-index: 28;
+  z-index: 9990;
   overflow: visible;
 }
 

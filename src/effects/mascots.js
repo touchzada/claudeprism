@@ -425,7 +425,6 @@
 
   function createMascotController({ isEnabled, getConfig, getComposerCard, isStreaming }) {
     let stageEl = null;
-    let hostCard = null;
     let actors = [];
     let rafId = 0;
     let lastTs = 0;
@@ -435,6 +434,38 @@
     let catClicks = [];
     let pointerClientX = -9999;
     let pointerClientY = -9999;
+    let stageWidth = 540;
+    let lastStagePosSig = '';
+
+    function syncStageGeometry() {
+      if (!stageEl || !stageEl.isConnected) return false;
+      const card = getComposerCard();
+      if (!card || !card.isConnected) {
+        stageEl.style.display = 'none';
+        return false;
+      }
+      const r = card.getBoundingClientRect();
+      const vw = root.innerWidth || 1280;
+      const vh = root.innerHeight || 720;
+      if (r.width < 160 || r.height < 36 || r.bottom < 0 || r.top > vh || r.right < 0 || r.left > vw) {
+        stageEl.style.display = 'none';
+        return false;
+      }
+      const insetX = 22;
+      const w = Math.max(120, Math.round(r.width - insetX * 2));
+      const left = Math.round(r.left + insetX);
+      const top = Math.round(r.top - 84);
+      const sig = `${left}|${top}|${w}`;
+      if (stageEl.style.display === 'none') stageEl.style.display = '';
+      if (sig !== lastStagePosSig) {
+        lastStagePosSig = sig;
+        stageWidth = w;
+        stageEl.style.left = `${left}px`;
+        stageEl.style.top = `${top}px`;
+        stageEl.style.width = `${w}px`;
+      }
+      return true;
+    }
 
     try {
       rainbowCat = root.localStorage?.getItem(CHROMA_KEY) === '1';
@@ -624,10 +655,14 @@
         return;
       }
 
+      if (!syncStageGeometry()) {
+        return;
+      }
+
       const dt = Math.min(0.05, Math.max(0.008, (ts - lastTs) / 1000));
       lastTs = ts;
 
-      const maxW = Math.max(200, stageEl.clientWidth || 540);
+      const maxW = Math.max(160, stageWidth || stageEl.clientWidth || 540);
       const streaming = isStreaming();
       if (streaming) lastActivityAt = ts;
 
@@ -742,26 +777,32 @@
         return;
       }
       const card = getComposerCard();
-      if (!card || !card.isConnected) return;
+      if (!card || !card.isConnected) {
+        if (stageEl) stageEl.style.display = 'none';
+        return;
+      }
 
       const currentSpeciesSig = resolveSpeciesList(cfg.mascotMode).join(',');
-      if (hostCard === card && stageEl && stageEl.isConnected && stageEl.dataset.cpSig === currentSpeciesSig) {
+      if (stageEl && stageEl.isConnected && stageEl.dataset.cpSig === currentSpeciesSig) {
+        syncStageGeometry();
+        wake();
         return;
       }
 
       unmount();
-      hostCard = card;
+      // Mount as a React-safe fixed overlay on document.body (ZERO mutations inside claude.ai's React tree!)
       stageEl = document.createElement('div');
       stageEl.className = 'cp-mascot-stage';
       stageEl.dataset.cpSig = currentSpeciesSig;
-      hostCard.appendChild(stageEl);
+      document.body.appendChild(stageEl);
+      syncStageGeometry();
       buildActors();
     }
 
     function unmount() {
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
       if (stageEl) { stageEl.remove(); stageEl = null; }
-      hostCard = null;
+      lastStagePosSig = '';
       actors = [];
     }
 
@@ -775,6 +816,7 @@
     }
 
     function onUserActivity() {
+      syncStageGeometry();
       if (actors.length > 0 && actors.some((a) => a.sleeping)) wake();
       else lastActivityAt = performance.now();
     }
@@ -784,9 +826,16 @@
       pointerClientY = ev.clientY;
     }
 
+    function onLayoutShift() {
+      syncStageGeometry();
+    }
+
     function start() {
       document.addEventListener('keydown', onUserActivity, { passive: true });
+      document.addEventListener('input', onLayoutShift, { passive: true });
       document.addEventListener('pointermove', onPointerMove, { passive: true });
+      document.addEventListener('scroll', onLayoutShift, { passive: true, capture: true });
+      root.addEventListener('resize', onLayoutShift, { passive: true });
       mountToComposer();
     }
 
@@ -797,7 +846,10 @@
     function destroy() {
       destroyed = true;
       document.removeEventListener('keydown', onUserActivity);
+      document.removeEventListener('input', onLayoutShift);
       document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('scroll', onLayoutShift, true);
+      root.removeEventListener('resize', onLayoutShift);
       unmount();
     }
 
