@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="./assets/banner.svg" width="100%" alt="Claude Prism — Optical UI & Motion Suite para claude.ai" />
+<img src="./assets/logo.svg" width="84" height="84" alt="Claude Prism Logo" />
 
-<br />
+# Claude Prism
+
+**Interface óptica, física de molas, cursor deslizante e mascotes pixelados para o `claude.ai`**
 
 **[English](./README.md)** · **Português (BR)**
 
@@ -14,8 +16,9 @@
   <img src="https://img.shields.io/badge/Licença-MIT-9B72CB?style=flat-square" alt="Licença MIT" />
 </p>
 
-Extensão de interface óptica, animações fluidas e mascotes pixelados para o **[claude.ai](https://claude.ai)** — inspirada na estética *Smoked Obsidian*.  
-**Zero dependências externas · 100% local · Sem requisições externas · Modo `0fps` ao ficar ocioso.**
+<img src="./assets/hero-preview.jpg" width="100%" alt="Preview real do Claude Prism rodando no claude.ai com tema Obsidian Dark, borda prismática, malha de ondas e os 4 mascotes pixelados" />
+
+<sub>Captura real rodando no <code>claude.ai</code> — paleta Obsidian Dark, borda prismática reativa ao mouse, cursor deslizante, ondas no fundo e os 4 mascotes pixelados em cima da caixa de prompt.</sub>
 
 </div>
 

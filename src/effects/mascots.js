@@ -433,6 +433,8 @@
     let destroyed = false;
     let rainbowCat = false;
     let catClicks = [];
+    let pointerClientX = -9999;
+    let pointerClientY = -9999;
 
     try {
       rainbowCat = root.localStorage?.getItem(CHROMA_KEY) === '1';
@@ -693,9 +695,22 @@
 
         if (a.x < 4) { a.x = 4; a.vx = Math.abs(a.vx); }
         if (a.x > maxW - a.w - 4) { a.x = maxW - a.w - 4; a.vx = -Math.abs(a.vx); }
-        if (Math.abs(a.vx) > 2) a.flip = a.vx < 0;
+        if (Math.abs(a.vx) > 2) {
+          a.flip = a.vx < 0;
+        } else if (!shouldSleep && stageEl && pointerClientX > -1000) {
+          // Curious look toward nearby pointer when standing still
+          const sr = stageEl.getBoundingClientRect();
+          const distY = Math.abs(pointerClientY - (sr.bottom - a.y - a.h * 0.5));
+          const localPx = pointerClientX - sr.left;
+          const dx = localPx - (a.x + a.w * 0.5);
+          if (distY < 110 && Math.abs(dx) > 12 && Math.abs(dx) < 220) {
+            a.flip = dx < 0;
+          }
+        }
 
+        const wasSleeping = a.sleeping;
         a.sleeping = shouldSleep;
+        if (shouldSleep && !wasSleeping) spawnFx(a, '💤');
         const grounded = a.y <= 1;
         const moving = Math.abs(a.vx) > 2 || !grounded || ts < a.hopUntil;
         const pose = shouldSleep ? 'sleep' : isBlinking && !moving ? 'blink' : (moving && animStep % 2 === 1 ? 'step' : 'idle');
@@ -764,8 +779,14 @@
       else lastActivityAt = performance.now();
     }
 
+    function onPointerMove(ev) {
+      pointerClientX = ev.clientX;
+      pointerClientY = ev.clientY;
+    }
+
     function start() {
       document.addEventListener('keydown', onUserActivity, { passive: true });
+      document.addEventListener('pointermove', onPointerMove, { passive: true });
       mountToComposer();
     }
 
@@ -776,6 +797,7 @@
     function destroy() {
       destroyed = true;
       document.removeEventListener('keydown', onUserActivity);
+      document.removeEventListener('pointermove', onPointerMove);
       unmount();
     }
 

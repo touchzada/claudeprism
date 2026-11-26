@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="./assets/banner.svg" width="100%" alt="Claude Prism — Optical UI & Motion Suite for claude.ai" />
+<img src="./assets/logo.svg" width="84" height="84" alt="Claude Prism Logo" />
 
-<br />
+# Claude Prism
+
+**Optical UI, damped-spring motion, smooth caret &amp; interactive pixel mascots for `claude.ai`**
 
 **English** · **[Português (BR)](./README.pt-BR.md)**
 
@@ -14,8 +16,9 @@
   <img src="https://img.shields.io/badge/License-MIT-9B72CB?style=flat-square" alt="MIT License" />
 </p>
 
-An optical UI, motion &amp; pixel-mascot extension for **[claude.ai](https://claude.ai)** — inspired by the *Smoked Obsidian* aesthetic.  
-**Zero external dependencies · 100% local · No network calls · Strict `0fps` idle sleep.**
+<img src="./assets/hero-preview.jpg" width="100%" alt="Claude Prism live preview on claude.ai with Obsidian Dark theme, prismatic border glow, ripple matrix and pixel mascots" />
+
+<sub>Live screenshot running on <code>claude.ai</code> — Obsidian Dark palette, cursor-reactive prism rim, smooth caret, glyph wavefield and all 4 pixel companions perched on the composer.</sub>
 
 </div>
 

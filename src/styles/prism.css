@@ -88,23 +88,50 @@ html[data-cp-enabled="1"] [data-cp-composer-card="1"] {
   border-color: var(--cp-border-2) !important;
   border-radius: var(--cp-r-composer) !important;
   box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-card) !important;
-  transition: border-color 180ms var(--cp-ease-out), box-shadow 220ms var(--cp-ease-out) !important;
+  transition: border-color 180ms var(--cp-ease-out), box-shadow 220ms var(--cp-ease-out), margin-top 220ms var(--cp-ease-out) !important;
+}
+
+/* Give breathing room below Claude's Home greeting when pixel mascots are mounted */
+html[data-cp-enabled="1"][data-cp-home="1"][data-cp-mascots-on="1"] [data-cp-composer-card="1"] {
+  margin-top: 26px !important;
 }
 
 html[data-cp-enabled="1"] [data-cp-composer-card="1"]:focus-within {
-  border-color: color-mix(in srgb, var(--cp-accent) 38%, var(--cp-border-2)) !important;
+  border-color: color-mix(in srgb, var(--cp-accent) 42%, var(--cp-border-2)) !important;
   box-shadow:
     inset 0 1px 0 var(--cp-specular),
-    0 0 0 1px color-mix(in srgb, var(--cp-accent) 18%, transparent),
-    0 16px 38px -12px rgba(0, 0, 0, 0.56),
-    0 0 26px -14px var(--cp-accent-glow) !important;
+    0 0 0 1px color-mix(in srgb, var(--cp-accent) 22%, transparent),
+    0 18px 42px -12px rgba(0, 0, 0, 0.60),
+    0 0 30px -12px var(--cp-accent-glow) !important;
 }
 
-/* Sidebar sits cleanly above ripple backdrop */
+/* Smoked Obsidian faceted polish on user message bubbles & inline code */
+html[data-cp-enabled="1"] [data-testid="user-message"] {
+  box-shadow: inset 0 1px 0 var(--cp-specular), 0 4px 14px -6px rgba(0, 0, 0, 0.34);
+  border-color: var(--cp-border-1) !important;
+}
+
+html[data-cp-enabled="1"] :not(pre) > code {
+  border: 1px solid var(--cp-border-1);
+  border-radius: var(--cp-r-sm);
+  box-shadow: inset 0 1px 0 var(--cp-specular);
+}
+
+/* Sidebar sits cleanly above ripple backdrop with subtle optical edge */
 html[data-cp-enabled="1"] nav,
 html[data-cp-enabled="1"] aside {
   position: relative;
   z-index: 3;
+}
+
+html[data-cp-enabled="1"] nav a,
+html[data-cp-enabled="1"] aside a {
+  transition: background-color 140ms ease, color 140ms ease, transform 160ms var(--cp-ease-spring);
+}
+
+html[data-cp-enabled="1"]:not([data-cp-motion="off"]) nav a:hover,
+html[data-cp-enabled="1"]:not([data-cp-motion="off"]) aside a:hover {
+  transform: translateX(2px);
 }
 
 /* Faceted Code Blocks & Folding */
@@ -167,38 +194,39 @@ html[data-cp-enabled="1"]:not([data-cp-motion="off"]) button:not([disabled]):not
 }
 
 /* ==========================================================================
-   FastDOM Smooth Typing Caret (Obsidian Prism razor-sharp proportions)
+   FastDOM Smooth Typing Caret (Fixed sub-pixel overlay — zero Tailwind drift!)
    ========================================================================== */
 html[data-cp-enabled="1"] [data-cp-smooth-caret="1"] {
   caret-color: transparent !important;
 }
 
-html[data-cp-enabled="1"] [data-cp-caret-host="1"] {
-  position: relative !important;
-}
-
 .cp-smooth-caret {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
   width: 2px;
-  height: 19px;
-  border-radius: 1px;
+  height: 18px;
+  border-radius: 1.5px;
   pointer-events: none;
-  z-index: 30;
+  z-index: 9991;
   opacity: 0;
-  background: var(--cp-accent, #D97757);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--cp-accent, #D97757) 58%, transparent);
+  background: linear-gradient(180deg, var(--cp-accent-soft, #8AB4F8) 0%, var(--cp-accent, #669DF6) 100%);
+  box-shadow:
+    0 0 7px color-mix(in srgb, var(--cp-accent, #669DF6) 68%, transparent),
+    0 0 2px rgba(255, 255, 255, 0.35);
   will-change: transform, height, opacity;
   transform: translate3d(0, 0, 0);
   transition:
-    transform 62ms cubic-bezier(0.22, 1.12, 0.36, 1),
-    height 80ms var(--cp-ease-out),
-    opacity 90ms ease;
+    transform 58ms cubic-bezier(0.22, 1.12, 0.36, 1),
+    height 75ms var(--cp-ease-out),
+    opacity 85ms ease;
 }
 
 .cp-smooth-caret[data-cp-caret-instant="1"] {
-  transition: opacity 80ms ease !important;
+  transition: opacity 75ms ease !important;
 }
 
 .cp-smooth-caret[data-cp-caret-visible="1"] {
@@ -209,7 +237,9 @@ html[data-cp-enabled="1"] [data-cp-caret-host="1"] {
 .cp-smooth-caret[data-cp-caret-visible="1"][data-cp-caret-typing="1"] {
   animation: none !important;
   opacity: 1 !important;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--cp-accent, #D97757) 75%, transparent);
+  box-shadow:
+    0 0 11px color-mix(in srgb, var(--cp-accent, #669DF6) 85%, transparent),
+    0 0 3px rgba(255, 255, 255, 0.55);
 }
 
 @keyframes cpCaretBlink {

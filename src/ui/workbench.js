@@ -366,6 +366,15 @@
 
     function scan() {
       if (destroyed) return;
+      const cfg = getConfig();
+      const html = document.documentElement;
+      if (cfg.enabled) {
+        html.setAttribute('data-cp-home', isHomeScreen() ? '1' : '0');
+        html.setAttribute('data-cp-mascots-on', cfg.mascotMode !== 'off' ? '1' : '0');
+      } else {
+        html.removeAttribute('data-cp-home');
+        html.removeAttribute('data-cp-mascots-on');
+      }
       findComposerCard();
       ensureDock();
       updateVial(false);

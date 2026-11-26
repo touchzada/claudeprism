@@ -130,29 +130,37 @@
         ctx.clearRect(0, 0, w, h);
 
         const cs = getComputedStyle(host);
-        const radius = parseFloat(cs.borderTopLeftRadius) || 18;
-        const strength = ambient * Math.max(0, 1 - dist / 150) * (toneKey === 'mono' ? 0.58 : 1);
+        const radius = parseFloat(cs.borderTopLeftRadius) || 20;
+        const strength = ambient * Math.max(0, 1 - dist / 165) * (toneKey === 'mono' ? 0.58 : 1);
         const gx = (localX + 1) * dpr;
         const gy = (localY + 1) * dpr;
-        const gr = Math.max(110, Math.min(210, rect.width * 0.28)) * dpr;
+        const gr = Math.max(125, Math.min(235, rect.width * 0.30)) * dpr;
 
         const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
         for (const [offset, color] of stops) grad.addColorStop(offset, color);
 
-        // Razor-sharp hairline specular rim ONLY (no muddy full-card fill!)
+        // Dual-pass Obsidian Prism specular rim: subtle outer border bloom + crisp 1.4px optical hairline
         const inset = 0.85 * dpr;
         const rr = Math.min((w - inset * 2) * 0.5, (h - inset * 2) * 0.5, radius * dpr);
 
         ctx.save();
-        ctx.globalAlpha = Math.min(0.92, strength * (isDark ? 0.86 : 0.68));
-        ctx.lineWidth = 1.35 * dpr;
-        ctx.strokeStyle = grad;
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
           ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, rr);
         } else {
           ctx.rect(inset, inset, w - inset * 2, h - inset * 2);
         }
+
+        // Pass 1: soft 3.5px chromatic border halo (stroke ONLY — never fills interior!)
+        ctx.globalAlpha = Math.min(0.32, strength * (isDark ? 0.32 : 0.18));
+        ctx.lineWidth = 3.6 * dpr;
+        ctx.strokeStyle = grad;
+        ctx.stroke();
+
+        // Pass 2: razor-sharp 1.45px specular refraction hairline
+        ctx.globalAlpha = Math.min(0.95, strength * (isDark ? 0.92 : 0.74));
+        ctx.lineWidth = 1.45 * dpr;
+        ctx.strokeStyle = grad;
         ctx.stroke();
         ctx.restore();
         rec.cleared = false;

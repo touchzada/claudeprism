@@ -1,4 +1,6 @@
-// Claude Prism — FastDOM Smooth Typing Caret for claude.ai ProseMirror & Textarea Inputs
+// Claude Prism — Sub-Pixel Fixed-Overlay FastDOM Smooth Typing Caret
+// Mounted on document.body (position: fixed) so Tailwind space-x/space-y margins,
+// parent transforms, or overflow:hidden on claude.ai NEVER shift or clip the caret.
 (function (root) {
   'use strict';
   const CP = (root.ClaudePrism = root.ClaudePrism || {});
@@ -9,41 +11,41 @@
   }
 
   function createSmoothCaretController({ isEnabled }) {
+    let caretEl = null;
+    let activeEditor = null;
     let rafId = 0;
     let typingTimer = 0;
     let pendingTyping = false;
-    let pendingScroll = false;
+    let pendingInstant = false;
+    let lastPos = null;
     let destroyed = false;
-
-    const caretNodes = new WeakMap();
-    const prevCoords = new WeakMap();
     const metricsCache = new WeakMap();
 
-    function findEditableHost(ed) {
-      if (!ed) return null;
-      // Attach to immediate positioned wrapper around ProseMirror
-      return ed.parentElement || ed;
+    function ensureCaretEl() {
+      if (caretEl && caretEl.isConnected) return caretEl;
+      caretEl = document.createElement('div');
+      caretEl.className = 'cp-smooth-caret';
+      caretEl.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(caretEl);
+      return caretEl;
     }
 
     function isValidEditor(el) {
       if (!el || el.nodeType !== 1 || !el.isConnected) return false;
       if (el.closest?.('.cp-settings-modal, .cp-vial-popover')) return false;
-      if (el.classList?.contains('ProseMirror') || el.getAttribute?.('contenteditable') === 'true') {
-        return true;
-      }
-      return false;
+      return Boolean(el.classList?.contains('ProseMirror') || el.getAttribute?.('contenteditable') === 'true');
     }
 
     function getMetrics(ed) {
       const cached = metricsCache.get(ed);
-      if (cached && Date.now() - cached.at < 2500) return cached;
+      if (cached && Date.now() - cached.at < 2000) return cached;
       const cs = getComputedStyle(ed);
+      const fontSize = parseFloat(cs.fontSize) || 16;
       const padL = parseFloat(cs.paddingLeft) || 0;
       const padT = parseFloat(cs.paddingTop) || 0;
-      const fontSize = parseFloat(cs.fontSize) || 15;
-      const lineH = parseFloat(cs.lineHeight) || fontSize * 1.48;
-      const glyphH = Math.max(16, Math.min(26, Math.round(fontSize * 1.32)));
-      const rec = { padL, padT, fontSize, lineH, glyphH, at: Date.now() };
+      // Tight glyph height so the caret aligns cleanly with cap-height + baseline (no low hanging tail)
+      const caretH = Math.max(14, Math.min(22, Math.round(fontSize * 1.18)));
+      const rec = { fontSize, padL, padT, caretH, at: Date.now() };
       metricsCache.set(ed, rec);
       return rec;
     }
@@ -57,38 +59,59 @@
       if (!range || !range.collapsed) return { collapsed: false };
       if (!ed.contains(range.startContainer)) return null;
 
-      const { padL, padT, glyphH } = getMetrics(ed);
+      const { padL, padT, caretH } = getMetrics(ed);
 
-      const clampBounds = (box) => {
+      const clampToViewportAndEditor = (box) => {
         if (!box) return null;
-        if (ed.scrollHeight > ed.clientHeight + 2) {
-          if (box.top < edRect.top - 4 || box.top + box.height > edRect.bottom + 6) {
-            return { collapsed: false };
-          }
+        if (box.top < edRect.top - 4 || box.top + box.height > edRect.bottom + 6) {
+          return { collapsed: false };
+        }
+        if (box.left < edRect.left - 4 || box.left > edRect.right + 4) {
+          return { collapsed: false };
         }
         return box;
       };
 
-      // 1. Primary accurate range rect (works for text nodes with content)
+      const centerBox = (rect) => {
+        // Align slightly higher (0.38) so bottom sits cleanly on text baseline rather than descender bottom
+        const top = rect.top + (rect.height - caretH) * 0.38;
+        return clampToViewportAndEditor({
+          collapsed: true,
+          left: rect.left,
+          top,
+          height: caretH,
+        });
+      };
+
+      // 1. Exact Range client rect (for text nodes, use a 1-char probe when collapsed rect is missing)
       const rects = range.getClientRects?.();
       const r0 = rects && rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect?.();
       if (r0 && r0.height > 0 && (r0.left > 0 || r0.top > 0)) {
-        const h = Math.max(15, Math.min(24, glyphH));
-        const centeredTop = r0.top + (r0.height - h) * 0.45;
-        return clampBounds({ collapsed: true, left: r0.left, top: centeredTop, height: h });
+        return centerBox(r0);
       }
 
-      // 2. Empty paragraph / ProseMirror <p><br class="ProseMirror-trailingBreak"></p>
+      // 2. Text node end fallback (measure preceding glyph's right edge)
       const sc = range.startContainer;
       const so = range.startOffset;
+      if (sc && sc.nodeType === 3 && so > 0) {
+        try {
+          const probe = document.createRange();
+          probe.setStart(sc, so - 1);
+          probe.setEnd(sc, so);
+          const pr = probe.getBoundingClientRect();
+          if (pr && pr.height > 0 && (pr.right > 0 || pr.top > 0)) {
+            return centerBox({ left: pr.right, top: pr.top, height: pr.height });
+          }
+        } catch {}
+      }
+
+      // 3. Empty paragraph / ProseMirror <p><br class="ProseMirror-trailingBreak"></p>
       if (sc && sc.nodeType === 1) {
         const at = sc.childNodes[so] || sc.childNodes[so - 1] || sc.querySelector?.('br');
         if (at && at.nodeName === 'BR') {
           const br = at.getBoundingClientRect();
           if (br && br.height > 0 && (br.left > 0 || br.top > 0)) {
-            const h = Math.max(15, Math.min(24, glyphH));
-            const centeredTop = br.top + (br.height - h) * 0.45;
-            return clampBounds({ collapsed: true, left: br.left, top: centeredTop, height: h });
+            return centerBox(br);
           }
         }
         const scRect = sc.getBoundingClientRect?.();
@@ -96,57 +119,42 @@
           const scCs = getComputedStyle(sc);
           const scPadL = parseFloat(scCs.paddingLeft) || 0;
           const scPadT = parseFloat(scCs.paddingTop) || 0;
-          return clampBounds({
+          return clampToViewportAndEditor({
             collapsed: true,
             left: scRect.left + scPadL,
-            top: scRect.top + scPadT + Math.max(0, (Math.min(scRect.height, glyphH + 4) - glyphH) / 2),
-            height: glyphH,
+            top: scRect.top + scPadT + Math.max(0, (Math.min(scRect.height, caretH + 6) - caretH) * 0.38),
+            height: caretH,
           });
         }
       }
 
-      // 3. Fallback top-left of editor content box
-      return clampBounds({
+      // 4. Final fallback: editor padding box origin
+      return clampToViewportAndEditor({
         collapsed: true,
         left: edRect.left + padL,
         top: edRect.top + padT,
-        height: glyphH,
+        height: caretH,
       });
     }
 
-    function hideAllCarets(exceptHost = null) {
-      document.querySelectorAll('.cp-smooth-caret[data-cp-caret-visible="1"]').forEach((node) => {
-        if (exceptHost && node.parentElement === exceptHost) return;
-        node.removeAttribute('data-cp-caret-visible');
-        node.removeAttribute('data-cp-caret-typing');
-      });
-      document.querySelectorAll('[data-cp-smooth-caret="1"]').forEach((ed) => {
-        if (exceptHost && findEditableHost(ed) === exceptHost) return;
-        ed.removeAttribute('data-cp-smooth-caret');
-      });
-    }
-
-    function ensureCaretNode(host) {
-      let node = caretNodes.get(host);
-      if (!node || !node.isConnected || node.parentElement !== host) {
-        node = host.querySelector(':scope > .cp-smooth-caret');
-        if (!node) {
-          node = document.createElement('div');
-          node.className = 'cp-smooth-caret';
-          node.setAttribute('aria-hidden', 'true');
-          host.appendChild(node);
-        }
-        caretNodes.set(host, node);
+    function hideCaret() {
+      if (caretEl) {
+        caretEl.removeAttribute('data-cp-caret-visible');
+        caretEl.removeAttribute('data-cp-caret-typing');
       }
-      return node;
+      if (activeEditor) {
+        activeEditor.removeAttribute('data-cp-smooth-caret');
+        activeEditor = null;
+      }
+      lastPos = null;
     }
 
     function tick() {
       rafId = 0;
       const isTyping = pendingTyping;
-      const isScroll = pendingScroll;
+      const isInstant = pendingInstant;
       pendingTyping = false;
-      pendingScroll = false;
+      pendingInstant = false;
 
       if (destroyed || !isEnabled() || document.hidden) {
         teardownDom();
@@ -159,43 +167,33 @@
         : active?.closest?.('.ProseMirror, [contenteditable="true"]') || null;
 
       if (!isValidEditor(ed)) {
-        hideAllCarets(null);
+        hideCaret();
         return;
       }
 
-      const host = findEditableHost(ed);
-      if (!host) return;
-
-      // MEASURE PHASE (zero writes)
+      // MEASURE PHASE (pure reads)
       const box = measureCaret(ed);
-      const hostRect = box && box.collapsed ? host.getBoundingClientRect() : null;
       const dpr = root.devicePixelRatio || 1;
-      const clientLeft = host.clientLeft || 0;
-      const clientTop = host.clientTop || 0;
-      const scrollLeft = host.scrollLeft || 0;
-      const scrollTop = host.scrollTop || 0;
 
-      // MUTATE PHASE (zero reads)
-      hideAllCarets(host);
-      if (host.getAttribute('data-cp-caret-host') !== '1') {
-        host.setAttribute('data-cp-caret-host', '1');
+      // MUTATE PHASE (pure writes)
+      if (activeEditor && activeEditor !== ed) {
+        activeEditor.removeAttribute('data-cp-smooth-caret');
       }
-      const caret = ensureCaretNode(host);
+      activeEditor = ed;
 
-      if (!box || !box.collapsed || !hostRect) {
-        caret.removeAttribute('data-cp-caret-visible');
-        caret.removeAttribute('data-cp-caret-typing');
-        ed.removeAttribute('data-cp-smooth-caret');
+      if (!box || !box.collapsed) {
+        hideCaret();
         return;
       }
 
-      const x = snapDevicePx(box.left - hostRect.left - clientLeft + scrollLeft, dpr);
-      const y = snapDevicePx(box.top - hostRect.top - clientTop + scrollTop, dpr);
+      const caret = ensureCaretEl();
+      const x = snapDevicePx(box.left, dpr);
+      const y = snapDevicePx(box.top, dpr);
       const h = snapDevicePx(box.height, dpr);
 
-      const prev = prevCoords.get(ed);
-      const hugeJump = !prev || isScroll || Math.abs(x - prev.x) > 260 || Math.abs(y - prev.y) > 96;
-      prevCoords.set(ed, { x, y, h });
+      const jumpDist = lastPos ? Math.hypot(x - lastPos.x, y - lastPos.y) : Infinity;
+      const hugeJump = isInstant || !lastPos || jumpDist > 260 || Math.abs(y - lastPos.y) > 72;
+      lastPos = { x, y, h };
 
       if (hugeJump) {
         caret.setAttribute('data-cp-caret-instant', '1');
@@ -203,7 +201,10 @@
         caret.removeAttribute('data-cp-caret-instant');
       }
 
-      ed.setAttribute('data-cp-smooth-caret', '1');
+      if (ed.getAttribute('data-cp-smooth-caret') !== '1') {
+        ed.setAttribute('data-cp-smooth-caret', '1');
+      }
+
       caret.style.height = `${h}px`;
       caret.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       caret.setAttribute('data-cp-caret-visible', '1');
@@ -223,41 +224,39 @@
       }
     }
 
-    function schedule(typing = false, scroll = false) {
+    function schedule(typing = false, instant = false) {
       if (destroyed || !isEnabled()) return;
       if (typing) pendingTyping = true;
-      if (scroll) pendingScroll = true;
+      if (instant) pendingInstant = true;
       if (!rafId) rafId = requestAnimationFrame(tick);
     }
 
     function onSelectionChange() { schedule(false, false); }
     function onInput() { schedule(true, false); }
-    function onKeyDown(ev) {
+    function onKeyUp(ev) {
       if (!ev.metaKey && !ev.ctrlKey && !ev.altKey) schedule(true, false);
       else schedule(false, false);
     }
     function onMouseUp() { schedule(false, false); }
     function onFocusIn() { schedule(false, true); }
-    function onFocusOut() { schedule(false, false); }
+    function onFocusOut() { schedule(false, true); }
     function onScroll() { schedule(false, true); }
     function onResize() { schedule(false, true); }
 
     function teardownDom() {
       clearTimeout(typingTimer);
       typingTimer = 0;
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
-      document.querySelectorAll('.cp-smooth-caret').forEach((n) => n.remove());
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      if (caretEl) { caretEl.remove(); caretEl = null; }
       document.querySelectorAll('[data-cp-smooth-caret]').forEach((n) => n.removeAttribute('data-cp-smooth-caret'));
-      document.querySelectorAll('[data-cp-caret-host]').forEach((n) => n.removeAttribute('data-cp-caret-host'));
+      activeEditor = null;
+      lastPos = null;
     }
 
     function start() {
       document.addEventListener('selectionchange', onSelectionChange, true);
       document.addEventListener('input', onInput, true);
-      document.addEventListener('keydown', onKeyDown, true);
+      document.addEventListener('keyup', onKeyUp, true);
       document.addEventListener('mouseup', onMouseUp, true);
       document.addEventListener('focusin', onFocusIn, true);
       document.addEventListener('focusout', onFocusOut, true);
@@ -275,7 +274,7 @@
       destroyed = true;
       document.removeEventListener('selectionchange', onSelectionChange, true);
       document.removeEventListener('input', onInput, true);
-      document.removeEventListener('keydown', onKeyDown, true);
+      document.removeEventListener('keyup', onKeyUp, true);
       document.removeEventListener('mouseup', onMouseUp, true);
       document.removeEventListener('focusin', onFocusIn, true);
       document.removeEventListener('focusout', onFocusOut, true);

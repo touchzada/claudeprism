@@ -76,6 +76,7 @@
       },
       isHomeScreen: () => Boolean(workbench?.isHomeScreen()),
       getConfig: () => configApi.getConfig(),
+      getComposerCard: () => workbench?.findComposerCard(),
     });
 
     mascots = CP.createMascotController({
