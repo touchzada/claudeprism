@@ -1,0 +1,816 @@
+/* ==========================================================================
+   Claude Prism — Smoked Obsidian Optical UI & Motion Stylesheet (Refined)
+   ========================================================================== */
+
+html[data-cp-enabled="1"] {
+  --cp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --cp-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --cp-ease-spring: cubic-bezier(0.34, 1.38, 0.64, 1);
+  --cp-spring-sidebar: cubic-bezier(0.22, 1.08, 0.36, 1);
+
+  --cp-r-sm: 5px;
+  --cp-r-md: 9px;
+  --cp-r-lg: 14px;
+  --cp-r-composer: 20px;
+  --cp-r-pill: 999px;
+
+  --cp-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.42), 0 10px 28px -8px rgba(0, 0, 0, 0.50);
+  --cp-shadow-float: 0 18px 46px -12px rgba(0, 0, 0, 0.62), 0 2px 10px -2px rgba(0, 0, 0, 0.38);
+  --cp-shadow-keycap: inset 0 1px 0 var(--cp-specular, rgba(255, 255, 255, 0.095)), 0 1px 3px rgba(0, 0, 0, 0.34);
+  --cp-sheen: linear-gradient(174deg, rgba(255, 255, 255, 0.042) 0%, rgba(255, 255, 255, 0.01) 34%, rgba(0, 0, 0, 0.14) 100%);
+}
+
+html[data-cp-enabled="1"][data-cp-mode="light"] {
+  --cp-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 10px 28px -6px rgba(30, 41, 59, 0.09), 0 0 0 1px var(--cp-border-1);
+  --cp-shadow-float: 0 16px 40px -10px rgba(15, 23, 42, 0.16), 0 2px 8px -2px rgba(15, 23, 42, 0.08);
+  --cp-shadow-keycap: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 3px rgba(15, 23, 42, 0.08);
+  --cp-sheen: linear-gradient(176deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 255, 0.52) 100%);
+}
+
+/* Corner radius scales */
+html[data-cp-enabled="1"][data-cp-corners="sharp"] {
+  --cp-r-sm: 3px;
+  --cp-r-md: 5px;
+  --cp-r-lg: 8px;
+  --cp-r-composer: 12px;
+}
+
+html[data-cp-enabled="1"][data-cp-corners="soft"] {
+  --cp-r-sm: 7px;
+  --cp-r-md: 12px;
+  --cp-r-lg: 18px;
+  --cp-r-composer: 24px;
+}
+
+/* Base surface & scrollbar refinement */
+html[data-cp-enabled="1"],
+html[data-cp-enabled="1"] body {
+  background-color: var(--cp-bg-1) !important;
+  color: var(--cp-text-1) !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-cp-enabled="1"] ::selection {
+  background: color-mix(in srgb, var(--cp-accent) 28%, transparent) !important;
+}
+
+html[data-cp-enabled="1"] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cp-border-2) transparent;
+}
+
+html[data-cp-enabled="1"] ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+html[data-cp-enabled="1"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[data-cp-enabled="1"] ::-webkit-scrollbar-thumb {
+  background: var(--cp-border-2);
+  border-radius: 999px;
+}
+
+html[data-cp-enabled="1"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--cp-border-3);
+}
+
+/* Faceted Smoked Obsidian Outer Composer Card (preserves native inner padding/spacing!) */
+html[data-cp-enabled="1"] [data-cp-composer-card="1"] {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 4 !important;
+  background-color: var(--cp-bg-2) !important;
+  background-image: var(--cp-sheen) !important;
+  border-color: var(--cp-border-2) !important;
+  border-radius: var(--cp-r-composer) !important;
+  box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-card) !important;
+  transition: border-color 180ms var(--cp-ease-out), box-shadow 220ms var(--cp-ease-out) !important;
+}
+
+html[data-cp-enabled="1"] [data-cp-composer-card="1"]:focus-within {
+  border-color: color-mix(in srgb, var(--cp-accent) 38%, var(--cp-border-2)) !important;
+  box-shadow:
+    inset 0 1px 0 var(--cp-specular),
+    0 0 0 1px color-mix(in srgb, var(--cp-accent) 18%, transparent),
+    0 16px 38px -12px rgba(0, 0, 0, 0.56),
+    0 0 26px -14px var(--cp-accent-glow) !important;
+}
+
+/* Sidebar sits cleanly above ripple backdrop */
+html[data-cp-enabled="1"] nav,
+html[data-cp-enabled="1"] aside {
+  position: relative;
+  z-index: 3;
+}
+
+/* Faceted Code Blocks & Folding */
+html[data-cp-enabled="1"] pre {
+  border: 1px solid var(--cp-border-1) !important;
+  border-radius: var(--cp-r-lg) !important;
+  box-shadow: inset 0 1px 0 var(--cp-specular), 0 8px 22px -10px rgba(0, 0, 0, 0.35);
+  transition: max-height 240ms var(--cp-ease-out);
+}
+
+html[data-cp-enabled="1"] pre[data-cp-folded="1"] {
+  max-height: 310px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+html[data-cp-enabled="1"] pre[data-cp-folded="1"]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 76px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--cp-bg-2) 92%);
+}
+
+.cp-code-fold-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  z-index: 6;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: var(--cp-r-pill);
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-3);
+  color: var(--cp-text-1);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--cp-shadow-keycap);
+  transition: transform 140ms var(--cp-ease-spring), border-color 140ms ease, background-color 140ms ease;
+}
+
+.cp-code-fold-btn:hover {
+  border-color: color-mix(in srgb, var(--cp-accent) 52%, var(--cp-border-2));
+  background: var(--cp-bg-4);
+  transform: translateY(-1px);
+}
+
+/* Tactile Spring Micro-Interactions (skipped in motion=off) */
+html[data-cp-enabled="1"]:not([data-cp-motion="off"]) button:not([disabled]):not([data-cp-no-spring="1"]) {
+  transition: transform 140ms var(--cp-ease-spring), background-color 140ms ease, border-color 140ms ease, box-shadow 160ms ease;
+}
+
+html[data-cp-enabled="1"]:not([data-cp-motion="off"]) button:not([disabled]):not([data-cp-no-spring="1"]):active {
+  transform: scale(0.968);
+}
+
+/* ==========================================================================
+   FastDOM Smooth Typing Caret (Obsidian Prism razor-sharp proportions)
+   ========================================================================== */
+html[data-cp-enabled="1"] [data-cp-smooth-caret="1"] {
+  caret-color: transparent !important;
+}
+
+html[data-cp-enabled="1"] [data-cp-caret-host="1"] {
+  position: relative !important;
+}
+
+.cp-smooth-caret {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 19px;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 30;
+  opacity: 0;
+  background: var(--cp-accent, #D97757);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cp-accent, #D97757) 58%, transparent);
+  will-change: transform, height, opacity;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 62ms cubic-bezier(0.22, 1.12, 0.36, 1),
+    height 80ms var(--cp-ease-out),
+    opacity 90ms ease;
+}
+
+.cp-smooth-caret[data-cp-caret-instant="1"] {
+  transition: opacity 80ms ease !important;
+}
+
+.cp-smooth-caret[data-cp-caret-visible="1"] {
+  opacity: 1;
+  animation: cpCaretBlink 1.05s step-end infinite;
+}
+
+.cp-smooth-caret[data-cp-caret-visible="1"][data-cp-caret-typing="1"] {
+  animation: none !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--cp-accent, #D97757) 75%, transparent);
+}
+
+@keyframes cpCaretBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ==========================================================================
+   Velvet 5-Step Ink Streaming via CSS Custom Highlight API
+   ========================================================================== */
+::highlight(cp-ink-0) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 14%, transparent); }
+::highlight(cp-ink-1) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 36%, transparent); }
+::highlight(cp-ink-2) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 60%, transparent); }
+::highlight(cp-ink-3) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 82%, transparent); }
+::highlight(cp-ink-4) { color: color-mix(in srgb, var(--cp-text-1, currentColor) 95%, transparent); }
+
+/* ==========================================================================
+   Cursor-Reactive GPU Prism Rim Canvas (Crisp Hairline Specular ONLY)
+   ========================================================================== */
+.cp-prism-rim-cv {
+  position: absolute !important;
+  inset: -1px !important;
+  width: calc(100% + 2px) !important;
+  height: calc(100% + 2px) !important;
+  pointer-events: none !important;
+  z-index: 20 !important;
+  border-radius: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* ==========================================================================
+   Home Ripple / Horizon Aurora Backdrop (Blend-mode overlays cleanly on canvas)
+   ========================================================================== */
+.cp-ripple-backdrop {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 380ms var(--cp-ease-out);
+}
+
+html[data-cp-enabled="1"][data-cp-mode="light"] .cp-ripple-backdrop {
+  mix-blend-mode: multiply;
+}
+
+.cp-ripple-backdrop[data-cp-active="1"] {
+  opacity: calc(var(--cp-ambient-mul, 1) * 0.95);
+}
+
+/* ==========================================================================
+   Semantic Edge Cues (Streaming / Finished Aura)
+   ========================================================================== */
+.cp-semantic-edge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  opacity: 0;
+  transition: opacity 380ms var(--cp-ease-out);
+}
+
+.cp-semantic-edge[data-state="streaming"] {
+  opacity: calc(var(--cp-ambient-mul, 1) * 0.85);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--cp-accent) 42%, transparent),
+              inset 0 0 32px -14px var(--cp-accent-glow);
+}
+
+.cp-semantic-edge[data-state="done"] {
+  opacity: calc(var(--cp-ambient-mul, 1) * 0.65);
+  box-shadow: inset 0 0 0 1.5px rgba(80, 163, 123, 0.48),
+              inset 0 0 28px -14px rgba(80, 163, 123, 0.42);
+}
+
+/* ==========================================================================
+   Interactive Pixel Mascot Stage (Mounted flush on OUTER composer top edge!)
+   ========================================================================== */
+.cp-mascot-stage {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 100%;
+  height: 84px;
+  pointer-events: none;
+  z-index: 28;
+  overflow: visible;
+}
+
+.cp-mascot-actor {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  will-change: transform;
+  transform-origin: bottom center;
+}
+
+.cp-mascot-actor[data-dragging="1"] {
+  cursor: grabbing;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.46));
+}
+
+.cp-mascot-actor canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.cp-mascot-fx {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+  opacity: 0;
+  animation: cpMascotPop 950ms var(--cp-ease-out) forwards;
+}
+
+@keyframes cpMascotPop {
+  0% { opacity: 0; transform: translate(-50%, 4px) scale(0.75); }
+  22% { opacity: 1; transform: translate(-50%, -6px) scale(1.08); }
+  100% { opacity: 0; transform: translate(-50%, -18px) scale(0.95); }
+}
+
+/* ==========================================================================
+   Liquid Context Vial & Floating Prism Pill
+   ========================================================================== */
+.cp-dock-cluster {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9992;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', 'Segoe UI Variable', system-ui, sans-serif;
+}
+
+.cp-vial-btn,
+.cp-prism-pill {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  border-radius: var(--cp-r-pill);
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-2);
+  background-image: var(--cp-sheen);
+  color: var(--cp-text-1);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-card);
+  transition: transform 160ms var(--cp-ease-spring), border-color 150ms ease, box-shadow 180ms ease;
+}
+
+.cp-vial-btn:hover,
+.cp-prism-pill:hover {
+  border-color: color-mix(in srgb, var(--cp-accent) 55%, var(--cp-border-2));
+  box-shadow: inset 0 1px 0 var(--cp-specular), 0 8px 24px -6px rgba(0, 0, 0, 0.5), 0 0 18px -6px var(--cp-accent-glow);
+  transform: translateY(-1.5px);
+}
+
+.cp-vial-glass {
+  position: relative;
+  width: 14px;
+  height: 19px;
+  border-radius: 3px 3px 6px 6px;
+  border: 1.4px solid color-mix(in srgb, var(--cp-text-2) 60%, transparent);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.cp-vial-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10%;
+  background: linear-gradient(180deg, var(--cp-accent-soft) 0%, var(--cp-accent) 100%);
+  box-shadow: 0 0 8px var(--cp-accent-glow);
+  transition: height 360ms var(--cp-ease-out);
+}
+
+.cp-vial-popover {
+  position: fixed;
+  right: 18px;
+  bottom: 60px;
+  width: 264px;
+  padding: 13px 14px;
+  border-radius: var(--cp-r-lg);
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-2);
+  background-image: var(--cp-sheen);
+  color: var(--cp-text-1);
+  box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-float);
+  z-index: 9994;
+  font-family: 'Inter', 'Segoe UI Variable', system-ui, sans-serif;
+  font-size: 12px;
+  display: none;
+}
+
+.cp-vial-popover[data-open="1"] {
+  display: block;
+  animation: cpPanelIn 180ms var(--cp-ease-spring);
+}
+
+.cp-vial-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cp-bg-4);
+  overflow: hidden;
+  margin: 8px 0 10px;
+}
+
+.cp-vial-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cp-accent) 0%, var(--cp-accent-soft) 100%);
+  transition: width 320ms var(--cp-ease-out);
+}
+
+.cp-vial-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 10px;
+  color: var(--cp-text-2);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-vial-grid strong {
+  color: var(--cp-text-1);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Conversation Hover Outline Rail
+   ========================================================================== */
+.cp-outline-rail {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9985;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 8px 4px;
+  pointer-events: auto;
+}
+
+.cp-outline-tick {
+  position: relative;
+  width: 14px;
+  height: 3.5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cp-text-3) 45%, transparent);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: width 160ms var(--cp-ease-spring), background-color 140ms ease, box-shadow 160ms ease;
+}
+
+.cp-outline-rail:hover .cp-outline-tick {
+  width: 20px;
+}
+
+.cp-outline-tick:hover,
+.cp-outline-tick[data-active="1"] {
+  width: 26px !important;
+  background: var(--cp-accent);
+  box-shadow: 0 0 8px var(--cp-accent-glow);
+}
+
+.cp-outline-tooltip {
+  position: fixed;
+  right: 48px;
+  max-width: 260px;
+  padding: 7px 11px;
+  border-radius: var(--cp-r-md);
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-2);
+  color: var(--cp-text-1);
+  font-size: 11.5px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-card);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 130ms ease, transform 150ms var(--cp-ease-out);
+  z-index: 9986;
+}
+
+.cp-outline-tooltip[data-show="1"] {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ==========================================================================
+   Claude Prism Floating Settings Modal
+   ========================================================================== */
+.cp-settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 10, 0.56);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Inter', 'Segoe UI Variable', system-ui, sans-serif;
+}
+
+.cp-settings-backdrop[data-open="1"] {
+  display: flex;
+  animation: cpFadeIn 140ms ease;
+}
+
+.cp-settings-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(82vh, 720px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-1);
+  background-image: var(--cp-sheen);
+  color: var(--cp-text-1);
+  box-shadow: inset 0 1px 0 var(--cp-specular), var(--cp-shadow-float);
+  overflow: hidden;
+  animation: cpPanelIn 200ms var(--cp-ease-spring);
+}
+
+.cp-settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px 13px;
+  border-bottom: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-0);
+}
+
+.cp-settings-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cp-settings-brand h2 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--cp-text-0);
+}
+
+.cp-settings-brand span {
+  display: block;
+  font-size: 11px;
+  color: var(--cp-text-3);
+}
+
+.cp-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-2);
+  color: var(--cp-text-2);
+  cursor: pointer;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.cp-close-btn:hover {
+  color: var(--cp-text-0);
+  border-color: var(--cp-border-3);
+}
+
+.cp-settings-body {
+  padding: 14px 18px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-preset-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-2);
+}
+
+.cp-preset-bar > span {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--cp-text-2);
+}
+
+.cp-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 9px;
+  border: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-0);
+}
+
+.cp-seg button {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--cp-text-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cp-seg button:hover {
+  color: var(--cp-text-1);
+  background: var(--cp-bg-3);
+}
+
+.cp-seg button[data-active="1"] {
+  background: var(--cp-bg-3);
+  color: var(--cp-text-0);
+  font-weight: 600;
+  box-shadow: var(--cp-shadow-keycap);
+}
+
+.cp-card {
+  border-radius: 12px;
+  border: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-2);
+  overflow: hidden;
+}
+
+.cp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--cp-border-1);
+}
+
+.cp-row:last-child {
+  border-bottom: 0;
+}
+
+.cp-row-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.cp-row-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--cp-text-0);
+}
+
+.cp-row-desc {
+  font-size: 11px;
+  color: var(--cp-text-3);
+  margin-top: 2px;
+}
+
+.cp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cp-switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-0);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.cp-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cp-text-2);
+  transition: transform 180ms var(--cp-ease-spring), background-color 160ms ease;
+}
+
+.cp-switch[aria-checked="true"] {
+  background: color-mix(in srgb, var(--cp-accent) 32%, var(--cp-bg-0));
+  border-color: color-mix(in srgb, var(--cp-accent) 65%, transparent);
+}
+
+.cp-switch[aria-checked="true"]::after {
+  transform: translateX(16px);
+  background: var(--cp-accent-soft);
+  box-shadow: 0 0 8px var(--cp-accent-glow);
+}
+
+.cp-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cp-slider-wrap input[type="range"] {
+  width: 110px;
+  accent-color: var(--cp-accent);
+  cursor: pointer;
+}
+
+.cp-slider-val {
+  min-width: 34px;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--cp-text-2);
+}
+
+.cp-settings-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid var(--cp-border-1);
+  background: var(--cp-bg-0);
+  font-size: 11px;
+  color: var(--cp-text-3);
+}
+
+.cp-foot-btn {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--cp-border-2);
+  background: var(--cp-bg-2);
+  color: var(--cp-text-1);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cp-foot-btn:hover {
+  border-color: var(--cp-border-3);
+  background: var(--cp-bg-3);
+}
+
+@keyframes cpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cpPanelIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-smooth-caret,
+  .cp-ripple-backdrop,
+  .cp-semantic-edge,
+  .cp-mascot-actor {
+    transition: none !important;
+    animation: none !important;
+  }
+}

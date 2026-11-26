@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="16" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22201D"/>
+      <stop offset="50%" stop-color="#141413"/>
+      <stop offset="100%" stop-color="#0C0C0E"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="12" y1="12" x2="116" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF5EC" stop-opacity="0.42"/>
+      <stop offset="45%" stop-color="#D97757" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#669DF6" stop-opacity="0.18"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="48%">
+      <stop offset="0%" stop-color="#D97757" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#9B72CB" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#141413" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="starGrad" x1="26" y1="26" x2="102" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F6BD60"/>
+      <stop offset="35%" stop-color="#D97757"/>
+      <stop offset="72%" stop-color="#9B72CB"/>
+      <stop offset="100%" stop-color="#669DF6"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bg)" stroke="url(#rim)" stroke-width="2"/>
+  <circle cx="64" cy="64" r="46" fill="url(#halo)"/>
+  <path d="M64 22 C67 48, 80 61, 106 64 C80 67, 67 80, 64 106 C61 80, 48 67, 22 64 C48 61, 61 48, 64 22 Z" fill="url(#starGrad)"/>
+  <path d="M64 46 C65.5 56.5, 71.5 62.5, 82 64 C71.5 65.5, 65.5 71.5, 64 82 C62.5 71.5, 56.5 65.5, 46 64 C56.5 62.5, 62.5 56.5, 64 46 Z" fill="#FFFBF7" fill-opacity="0.92"/>
+</svg>

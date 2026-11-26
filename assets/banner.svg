@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" fill="none">
+  <defs>
+    <linearGradient id="canvasBg" x1="0" y1="0" x2="1200" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0E0E10"/>
+      <stop offset="50%" stop-color="#141413"/>
+      <stop offset="100%" stop-color="#100F0E"/>
+    </linearGradient>
+    <radialGradient id="auroraCenter" cx="50%" cy="28%" r="54%">
+      <stop offset="0%" stop-color="#D97757" stop-opacity="0.28"/>
+      <stop offset="48%" stop-color="#9B72CB" stop-opacity="0.12"/>
+      <stop offset="78%" stop-color="#669DF6" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#141413" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="composerSheen" x1="250" y1="226" x2="950" y2="352" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22201D"/>
+      <stop offset="40%" stop-color="#1A1917"/>
+      <stop offset="100%" stop-color="#151413"/>
+    </linearGradient>
+    <linearGradient id="prismRim" x1="250" y1="226" x2="720" y2="352" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF7EE" stop-opacity="0.9"/>
+      <stop offset="22%" stop-color="#F6BD60" stop-opacity="0.88"/>
+      <stop offset="48%" stop-color="#D97757" stop-opacity="0.82"/>
+      <stop offset="75%" stop-color="#9B72CB" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="starG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F6BD60"/>
+      <stop offset="38%" stop-color="#D97757"/>
+      <stop offset="74%" stop-color="#9B72CB"/>
+      <stop offset="100%" stop-color="#669DF6"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="410" y1="70" x2="790" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFDF9"/>
+      <stop offset="70%" stop-color="#EFE7DC"/>
+      <stop offset="100%" stop-color="#D9B7A6"/>
+    </linearGradient>
+    <filter id="caretGlow" x="-100%" y="-40%" width="300%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="cardShadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity="0.58"/>
+    </filter>
+    <pattern id="glyphMatrix" width="36" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="18" cy="18" r="1.2" fill="#B4AEA2" fill-opacity="0.16"/>
+      <circle cx="36" cy="36" r="0.9" fill="#D97757" fill-opacity="0.12"/>
+    </pattern>
+  </defs>
+
+  <!-- Smoked Obsidian Frame -->
+  <rect x="1" y="1" width="1198" height="438" rx="22" fill="url(#canvasBg)" stroke="rgba(245,240,230,0.12)" stroke-width="1.5"/>
+  <rect x="2" y="2" width="1196" height="436" rx="21" fill="url(#glyphMatrix)"/>
+  <rect x="2" y="2" width="1196" height="436" rx="21" fill="url(#auroraCenter)"/>
+
+  <!-- Top specular edge -->
+  <line x1="28" y1="2.5" x2="1172" y2="2.5" stroke="rgba(255,248,236,0.18)" stroke-width="1"/>
+
+  <!-- Brand Header -->
+  <g transform="translate(425, 58)">
+    <rect x="0" y="4" width="46" height="46" rx="13" fill="#1B1A18" stroke="rgba(255,245,235,0.18)" stroke-width="1.2"/>
+    <path d="M23 11 C24.6 21, 29 25.4, 39 27 C29 28.6, 24.6 33, 23 43 C21.4 33, 17 28.6, 7 27 C17 25.4, 21.4 21, 23 11 Z" fill="url(#starG)"/>
+    <text x="62" y="40" font-family="Inter, 'Segoe UI Variable', system-ui, -apple-system, sans-serif" font-size="40" font-weight="750" letter-spacing="-0.03em" fill="url(#titleGrad)">Claude Prism</text>
+  </g>
+
+  <text x="600" y="138" text-anchor="middle" font-family="Inter, 'Segoe UI Variable', system-ui, -apple-system, sans-serif" font-size="16" font-weight="500" fill="#A8A196">
+    Smoked Obsidian themes · Smooth typing caret · 5-step ink streaming · Prism rims · Pixel mascots
+  </text>
+
+  <!-- Mini Pixel Mascots perched cleanly on top of composer -->
+  <!-- Clawd (Terracotta Crab) -->
+  <g transform="translate(760, 194) scale(2.5)">
+    <ellipse cx="8" cy="12.6" rx="5.2" ry="1" fill="#000" fill-opacity="0.38"/>
+    <rect x="2" y="1" width="2" height="2" fill="#EEA78D"/>
+    <rect x="12" y="1" width="2" height="2" fill="#EEA78D"/>
+    <rect x="3" y="3" width="10" height="6" rx="1" fill="#D97757" stroke="#141413" stroke-width="0.8"/>
+    <rect x="4" y="4" width="8" height="1" fill="#EEA78D"/>
+    <rect x="5" y="5" width="1.4" height="1.8" fill="#141413"/>
+    <rect x="9.6" y="5" width="1.4" height="1.8" fill="#141413"/>
+    <rect x="4" y="9" width="1.5" height="2.4" fill="#B8593B"/>
+    <rect x="7.2" y="9" width="1.5" height="2.4" fill="#B8593B"/>
+    <rect x="10.4" y="9" width="1.5" height="2.4" fill="#B8593B"/>
+  </g>
+
+  <!-- Gemini Cat (Purple Pixel Kitty) -->
+  <g transform="translate(822, 194) scale(2.5)">
+    <ellipse cx="8" cy="12.6" rx="5" ry="1" fill="#000" fill-opacity="0.38"/>
+    <rect x="2.5" y="1" width="2.2" height="2.5" fill="#947FD6" stroke="#141413" stroke-width="0.7"/>
+    <rect x="11.3" y="1" width="2.2" height="2.5" fill="#947FD6" stroke="#141413" stroke-width="0.7"/>
+    <rect x="2.5" y="3" width="11" height="6.5" rx="1.2" fill="#947FD6" stroke="#141413" stroke-width="0.8"/>
+    <rect x="4" y="4" width="8" height="1" fill="#C8B9FA"/>
+    <rect x="5" y="5" width="1.4" height="1.6" fill="#141413"/>
+    <rect x="9.6" y="5" width="1.4" height="1.6" fill="#141413"/>
+    <rect x="7" y="6.3" width="2" height="1" fill="#F4A6C1"/>
+    <rect x="4.5" y="9.5" width="2" height="2" fill="#6F59B5"/>
+    <rect x="9.5" y="9.5" width="2" height="2" fill="#6F59B5"/>
+  </g>
+
+  <!-- Faceted Smoked Obsidian Composer Card Mockup -->
+  <g filter="url(#cardShadow)">
+    <rect x="250" y="226" width="700" height="126" rx="20" fill="url(#composerSheen)" stroke="url(#prismRim)" stroke-width="1.6"/>
+  </g>
+
+  <!-- Prompt Text + Glowing Smooth Caret -->
+  <text x="278" y="268" font-family="Inter, 'Segoe UI Variable', system-ui, sans-serif" font-size="17" fill="#F2EFE9">
+    Let's build something ridiculously smooth today
+  </text>
+  <rect x="652" y="250" width="2.5" height="22" rx="1.25" fill="#E59377" filter="url(#caretGlow)"/>
+
+  <!-- Composer Bottom Controls -->
+  <g transform="translate(276, 306)">
+    <rect x="0" y="0" width="28" height="28" rx="8" fill="#23201D" stroke="rgba(245,240,230,0.12)"/>
+    <text x="14" y="19" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#CEC8BC">+</text>
+
+    <!-- Palette swatches preview -->
+    <g transform="translate(44, 5)">
+      <rect x="0" y="0" width="114" height="19" rx="9.5" fill="#141312" stroke="rgba(245,240,230,0.1)"/>
+      <circle cx="15" cy="9.5" r="4" fill="#D97757"/>
+      <circle cx="31" cy="9.5" r="4" fill="#669DF6"/>
+      <circle cx="47" cy="9.5" r="4" fill="#E8EEF6"/>
+      <circle cx="63" cy="9.5" r="4" fill="#EBE6DC"/>
+      <text x="76" y="13" font-family="Inter, sans-serif" font-size="9.5" font-weight="600" fill="#A39E93">4 Themes</text>
+    </g>
+
+    <!-- Send Button -->
+    <rect x="618" y="-1" width="32" height="30" rx="9" fill="#D97757"/>
+    <path d="M634 8 L634 20 M629 13 L634 8 L639 13" stroke="#FFF9F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Floating Dock Preview (Liquid Context Vial + Prism Pill) -->
+  <g transform="translate(970, 382)">
+    <rect x="0" y="0" width="84" height="32" rx="16" fill="#1B1A18" stroke="rgba(245,240,230,0.14)"/>
+    <rect x="13" y="7" width="12" height="18" rx="4" fill="#111" stroke="rgba(206,200,188,0.55)" stroke-width="1.2"/>
+    <rect x="14.5" y="16" width="9" height="7.5" rx="2" fill="#D97757"/>
+    <text x="34" y="20" font-family="Inter, sans-serif" font-size="11.5" font-weight="650" fill="#F2EFE9">18%</text>
+
+    <rect x="92" y="0" width="92" height="32" rx="16" fill="#1B1A18" stroke="rgba(217,119,87,0.45)"/>
+    <path d="M111 9 L113 14 L118 16 L113 18 L111 23 L109 18 L104 16 L109 14 Z" fill="#D97757"/>
+    <text x="126" y="20" font-family="Inter, sans-serif" font-size="11.5" font-weight="650" fill="#F2EFE9">Prism</text>
+  </g>
+
+  <!-- Footer Tagline -->
+  <text x="600" y="403" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="11.5" fill="#7D786E">
+    Manifest V3 · Zero Dependencies · 100% Local · Strict 0fps Idle Sleep
+  </text>
+</svg>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Claude Prism</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 286px;
+      padding: 14px;
+      font-family: 'Inter', 'Segoe UI Variable', system-ui, sans-serif;
+      background: #10100F;
+      color: #F2EFE9;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand h1 { margin: 0; font-size: 13.5px; font-weight: 700; }
+    .brand span { display: block; font-size: 10.5px; color: #9C968B; }
+    .toggle {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 240, 230, 0.14);
+      background: #1B1A18;
+      color: #F2EFE9;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .toggle[data-on="1"] {
+      background: rgba(217, 119, 87, 0.24);
+      border-color: rgba(217, 119, 87, 0.65);
+      color: #FFD9C9;
+    }
+    .sec {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 240, 230, 0.09);
+      background: #171614;
+      margin-bottom: 10px;
+    }
+    .lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #A39E93;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .btn {
+      height: 28px;
+      border-radius: 7px;
+      border: 1px solid rgba(245, 240, 230, 0.10);
+      background: #201E1B;
+      color: #D9D3C7;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .btn:hover { background: #2A2723; color: #FFF; }
+    .btn[data-active="1"] {
+      border-color: #D97757;
+      background: rgba(217, 119, 87, 0.2);
+      color: #FFF;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .open-btn {
+      width: 100%;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(217, 119, 87, 0.55);
+      background: linear-gradient(180deg, rgba(217, 119, 87, 0.28), rgba(217, 119, 87, 0.14));
+      color: #FFF5EF;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .open-btn:hover { filter: brightness(1.1); }
+    .note {
+      margin-top: 8px;
+      font-size: 10.5px;
+      color: #827D73;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div class="brand">
+      <img src="../../icons/icon48.png" width="24" height="24" alt="" />
+      <div>
+        <h1>Claude Prism</h1>
+        <span>Optical UI · v1.0.0</span>
+      </div>
+    </div>
+    <button id="toggleBtn" class="toggle" data-on="1">Ativo</button>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">Tema Óptico</div>
+    <div class="grid" id="paletteGrid">
+      <button class="btn" data-palette="warm"><span class="dot" style="background:#D97757"></span>Warm</button>
+      <button class="btn" data-palette="obsidian"><span class="dot" style="background:#669DF6"></span>Obsidian</button>
+      <button class="btn" data-palette="crystal"><span class="dot" style="background:#E8EEF6"></span>Crystal</button>
+      <button class="btn" data-palette="alabaster"><span class="dot" style="background:#EBE6DC"></span>Alabaster</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="lbl">Mascotes</div>
+    <div class="grid grid-3" id="mascotGrid">
+      <button class="btn" data-mascot="off">Off</button>
+      <button class="btn" data-mascot="dual">Duo</button>
+      <button class="btn" data-mascot="quad-minis">Todos</button>
+    </div>
+  </div>
+
+  <button id="openPanelBtn" class="open-btn">Abrir Painel Completo no claude.ai</button>
+  <div class="note">Atalho na página: Alt + Shift + P</div>
+  <script src="popup.js"></script>
+</body>
+</html>
